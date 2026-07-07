@@ -1,0 +1,54 @@
+{
+  "cards": [
+    {
+      "id": "NSTXU-Diagram",
+      "displayName": "NSTX-U",
+      "fullName": "National Spherical Torus Experiment - Upgrade",
+      "org": "Princeton Plasma Physics Laboratory (PPPL)",
+      "realSize": "plasma major radius 0.93 m; device several metres tall",
+      "blurb": "A spherical tokamak - a cored-apple-shaped plasma that reaches high pressure with less magnetic field than a conventional tokamak.",
+      "url": "https://www.pppl.gov/research/nstx-u",
+      "image": "cards/NSTXU-Diagram.png"
+    },
+    {
+      "id": "ITER-Card",
+      "displayName": "ITER",
+      "fullName": "International Thermonuclear Experimental Reactor",
+      "org": "ITER Organization, Cadarache, France (35 nations)",
+      "realSize": "plasma major radius 6.2 m; machine roughly 30 m tall",
+      "blurb": "The world's largest tokamak, under construction in southern France. Designed to produce 500 MW of fusion power from 50 MW of heating.",
+      "url": "https://www.iter.org",
+      "image": "cards/ITER-Card.png"
+    },
+    {
+      "id": "HBTEP-Card",
+      "displayName": "HBT-EP",
+      "fullName": "High Beta Tokamak - Extended Pulse",
+      "org": "Columbia University Plasma Physics Laboratory",
+      "realSize": "plasma major radius 0.92 m",
+      "blurb": "Columbia's research tokamak, used to study how to control plasma instabilities with feedback from magnetic sensors and active coils.",
+      "url": "https://www.apam.columbia.edu",
+      "image": "cards/HBTEP-Card.png"
+    },
+    {
+      "id": "FRC-Card",
+      "displayName": "PFRC-II",
+      "fullName": "Princeton Field-Reversed Configuration II",
+      "org": "Princeton Plasma Physics Laboratory (PPPL)",
+      "realSize": "compact device, a few metres long",
+      "blurb": "A field-reversed configuration: the plasma generates much of its own confining field, promising small, simple fusion devices.",
+      "url": "https://www.pppl.gov",
+      "image": "cards/FRC-Card.png"
+    },
+    {
+      "id": "DFD-Rocket",
+      "displayName": "DFD Fusion Rocket",
+      "fullName": "Direct Fusion Drive",
+      "org": "Princeton Satellite Systems",
+      "realSize": "engine concept roughly 1-2 m in diameter",
+      "blurb": "A fusion rocket engine concept based on the PFRC, designed to fly missions like a Pluto orbiter with power and thrust from one compact core.",
+      "url": "https://www.psatellite.com",
+      "image": "cards/DFD-Rocket.png"
+    }
+  ]
+}
