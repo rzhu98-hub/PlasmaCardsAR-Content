@@ -2,64 +2,115 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>PlasmaCards — true-size screen display</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PlasmaCards — true-size card tester</title>
 <style>
-  body { margin:0; background:#000; color:#eee; font-family:-apple-system,sans-serif; }
-  #setup { padding:24px; max-width:720px; }
-  #bar { height:24px; background:#0af; margin:12px 0; }
+  :root { --bg:#060b18; --panel:#0d1830; --accent:#38b6ff; }
+  body { margin:0; background:var(--bg); color:#e8eefb;
+         font-family:-apple-system,"Segoe UI",sans-serif; -webkit-user-select:none; }
+  #setup { padding:22px; max-width:760px; margin:0 auto; }
+  h2 { color:var(--accent); }
+  #bar { height:26px; background:var(--accent); margin:12px 0; border-radius:4px; }
   input[type=range] { width:100%; }
-  button { font-size:15px; padding:8px 14px; margin:4px; cursor:pointer; }
-  #stage { display:none; position:fixed; inset:0; background:#000;
-           display:none; align-items:center; justify-content:center; }
-  #stage img { display:block; }
-  #hint { position:fixed; bottom:8px; left:0; right:0; text-align:center;
-          color:#666; font-size:12px; }
+  button.cardbtn { font-size:17px; padding:12px 18px; margin:6px; cursor:pointer;
+         background:var(--panel); color:#e8eefb; border:1px solid #1c2c52; border-radius:10px; }
+  #stage { position:fixed; inset:0; background:#000; display:none;
+           align-items:center; justify-content:center; }
+  #card { display:block; }
+  .nav { position:fixed; top:50%; transform:translateY(-50%); z-index:5;
+         font-size:34px; line-height:1; padding:18px 20px; border-radius:14px;
+         background:rgba(13,24,48,0.85); color:#e8eefb; border:1px solid #1c2c52; cursor:pointer; }
+  #prev { left:12px; } #next { right:12px; }
+  #back { position:fixed; top:12px; left:12px; z-index:5; font-size:16px;
+          padding:10px 16px; border-radius:12px; background:rgba(13,24,48,0.85);
+          color:#e8eefb; border:1px solid #1c2c52; cursor:pointer; }
+  #label { position:fixed; bottom:14px; left:0; right:0; text-align:center;
+           color:#9fb2d4; font-size:15px; z-index:5; }
 </style>
 </head>
 <body>
 <div id="setup">
-  <h2>Step 1 — calibrate once</h2>
-  <p>Do not pinch-zoom the page.
-     Hold a real ruler against the blue bar and drag the slider until the bar is
-     <b>exactly 10&nbsp;cm</b> long.</p>
+  <h2>Step 1 — calibrate once (per device)</h2>
+  <p>Don't pinch-zoom this page. Hold a real ruler against the blue bar and drag
+     the slider until the bar is exactly <b>10&nbsp;cm</b> long.</p>
   <div id="bar"></div>
-  <input type="range" id="cal" min="200" max="800" step="1">
+  <input type="range" id="cal" min="150" max="1400" step="1">
   <p id="readout"></p>
-  <h2>Step 2 — pick a card</h2>
-  <p>Card shows at true size: 12.7 × 7.14 cm. Tap left/right side to switch cards, tap top-left corner to come back. Use fullscreen (green window button) so nothing overlaps.</p>
+  <h2>Step 2 — pick a card (true size: 12.7 × 7.14 cm)</h2>
+  <p>Swipe left/right or use the ‹ › buttons to change cards. Keep the screen
+     flat, brightness up, auto-lock off.</p>
   <div id="buttons"></div>
 </div>
-<div id="stage"><img id="card"><div id="hint">tap sides: switch · top-left: back</div></div>
+
+<div id="stage">
+  <img id="card">
+  <button id="back">← back</button>
+  <button id="prev" class="nav">‹</button>
+  <button id="next" class="nav">›</button>
+  <div id="label"></div>
+</div>
+
 <script>
 const cards = ["NSTXU-Diagram","ITER-Card","HBTEP-Card","FRC-Card","DFD-Rocket"];
 const bar = document.getElementById("bar"), cal = document.getElementById("cal"),
       readout = document.getElementById("readout"), stage = document.getElementById("stage"),
-      img = document.getElementById("card"), setup = document.getElementById("setup");
+      img = document.getElementById("card"), setup = document.getElementById("setup"),
+      label = document.getElementById("label");
 let idx = 0;
-cal.value = localStorage.getItem("pxPer100mm") || 378;
-function upd(){ bar.style.width = cal.value+"px";
-  readout.textContent = "Bar = "+cal.value+" px. When it measures 10.0 cm with your ruler, calibration is done.";
-  localStorage.setItem("pxPer100mm", cal.value); }
+
+cal.value = localStorage.getItem("pxPer100mm") || 500;
+function upd() {
+  bar.style.width = cal.value + "px";
+  readout.textContent = "Bar = " + cal.value + " px — done when your ruler reads 10.0 cm.";
+  localStorage.setItem("pxPer100mm", cal.value);
+}
 cal.oninput = upd; upd();
+
 const div = document.getElementById("buttons");
-cards.forEach((c,i)=>{ const b=document.createElement("button"); b.textContent=c;
-  b.onclick=()=>show(i); div.appendChild(b); });
-function show(i){ idx=i; const pxPerMm = cal.value/100;
-  img.src = "cards/"+cards[i]+".png";
-  img.style.width  = (127*pxPerMm)+"px";
-  img.style.height = (71.4375*pxPerMm)+"px";
-  setup.style.display="none"; stage.style.display="flex"; }
-document.addEventListener("keydown",e=>{
-  if(stage.style.display!=="flex") return;
-  if(e.key==="Escape"){ stage.style.display="none"; setup.style.display="block"; }
-  if(e.key==="ArrowRight") show((idx+1)%cards.length);
-  if(e.key==="ArrowLeft")  show((idx+cards.length-1)%cards.length);
+cards.forEach((c, i) => {
+  const b = document.createElement("button");
+  b.className = "cardbtn"; b.textContent = c;
+  b.onclick = () => show(i);
+  div.appendChild(b);
 });
-stage = document.getElementById("stage");
-stage.addEventListener("click", e => {
-  if (e.clientX < 120 && e.clientY < 120) { stage.style.display="none"; setup.style.display="block"; return; }
-  if (e.clientX > window.innerWidth/2) show((idx+1)%cards.length);
-  else show((idx+cards.length-1)%cards.length);
+
+function show(i) {
+  idx = (i + cards.length) % cards.length;
+  const ppm = cal.value / 100;
+  img.src = "cards/" + cards[idx] + ".png";
+  img.style.width  = (127 * ppm) + "px";
+  img.style.height = (71.4375 * ppm) + "px";
+  label.textContent = (idx + 1) + " / " + cards.length + " — " + cards[idx];
+  setup.style.display = "none";
+  stage.style.display = "flex";
+}
+
+document.getElementById("prev").onclick = e => { e.stopPropagation(); show(idx - 1); };
+document.getElementById("next").onclick = e => { e.stopPropagation(); show(idx + 1); };
+document.getElementById("back").onclick = e => {
+  e.stopPropagation(); stage.style.display = "none"; setup.style.display = "block";
+};
+
+// Swipe left/right anywhere on the card view.
+let x0 = null, y0 = null;
+stage.addEventListener("touchstart", e => {
+  x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+}, { passive: true });
+stage.addEventListener("touchend", e => {
+  if (x0 === null) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  const dy = e.changedTouches[0].clientY - y0;
+  x0 = y0 = null;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5)
+    show(dx < 0 ? idx + 1 : idx - 1);   // swipe left = next, right = previous
+}, { passive: true });
+
+// Desktop conveniences.
+document.addEventListener("keydown", e => {
+  if (stage.style.display !== "flex") return;
+  if (e.key === "Escape") { stage.style.display = "none"; setup.style.display = "block"; }
+  if (e.key === "ArrowRight") show(idx + 1);
+  if (e.key === "ArrowLeft")  show(idx - 1);
 });
 </script>
 </body>
