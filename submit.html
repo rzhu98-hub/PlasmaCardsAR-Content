@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submit a Reactor — Plasma Cards AR</title>
+<style>
+  :root { --bg:#060b18; --panel:#0d1830; --accent:#38b6ff; --glow:#7ee0ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:#e8eefb;
+         font-family:-apple-system, "Segoe UI", Roboto, sans-serif; line-height:1.6; }
+  header { text-align:center; padding:56px 20px 32px;
+           background:radial-gradient(ellipse at top, #10254d 0%, var(--bg) 70%); }
+  h1 { font-size:2.1em; margin:0 0 8px; }
+  .sub { color:#9fb2d4; max-width:640px; margin:0 auto; }
+  main { max-width:760px; margin:0 auto; padding:12px 20px 64px; }
+  h2 { color:var(--accent); margin-top:40px; }
+  .box { background:var(--panel); border:1px solid #1c2c52; border-radius:14px;
+         padding:20px 24px; margin:16px 0; }
+  ol li, ul li { margin:10px 0; }
+  code { background:#0a1428; border:1px solid #1c2c52; border-radius:6px;
+         padding:2px 8px; font-size:0.92em; }
+  .btn { display:inline-block; background:var(--accent); color:#04101f;
+         font-weight:700; padding:12px 22px; border-radius:10px;
+         text-decoration:none; margin-top:10px; }
+  a { color:var(--glow); }
+  .note { color:#9fb2d4; font-size:0.9em; }
+  nav { padding:14px 20px; } nav a { text-decoration:none; }
+  footer { text-align:center; color:#5c6b8a; padding:24px; font-size:0.85em; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">← Plasma Cards AR home</a></nav>
+<header>
+  <h1>Submit a Reactor</h1>
+  <p class="sub">Have a CAD model of a fusion machine? Get it into the deck —
+     a new card and 3D model, live in the app without anyone updating anything.</p>
+</header>
+<main>
+  <h2>How it works</h2>
+  <div class="box">
+    <ol>
+      <li><b>You send us</b> a 3D model of the machine plus a bit of info (below).</li>
+      <li><b>We review it</b> — the maintainers check the model renders correctly,
+          size it for AR, and design the trading card for it.</li>
+      <li><b>It goes live on the content server.</b> The 3D model appears in the app
+          automatically. A brand-new card also needs the next app update to become
+          scannable — models update instantly, cards ride app releases.</li>
+    </ol>
+  </div>
+
+  <h2>What to send</h2>
+  <div class="box">
+    <ul>
+      <li><b>3D model file:</b> <code>.obj</code> (preferred), <code>.fbx</code>,
+          <code>.glb</code>/<code>.gltf</code>, or <code>.stl</code> — under 50&nbsp;MB.
+          Include texture files if the model uses them (<code>.mtl</code>, images).</li>
+      <li><b>Machine facts:</b> name, institution, real dimensions (approximate is fine),
+          a 2–3 sentence description, and a link to the official page.</li>
+      <li><b>Optional:</b> a nice photo or diagram for the card artwork, and how you'd
+          like to be credited.</li>
+      <li class="note">Please only submit models you have the right to share —
+          your own work, your lab's (with permission), or openly licensed files.</li>
+    </ul>
+  </div>
+
+  <h2>Send it</h2>
+  <div class="box">
+    <p>Email your model and info (use a file-sharing link for big files —
+       Google Drive, Dropbox, etc.):</p>
+    <a class="btn" href="mailto:rzhu98@wisc.edu?subject=Plasma%20Cards%20AR%20%E2%80%94%20reactor%20submission">
+       Email a submission</a>
+    <p class="note">Questions, ideas, or want to help build this project?
+       Same address — we'd love to hear from you.</p>
+  </div>
+
+  <p class="note">A self-serve upload portal (submit → automatic review queue) is on the
+     roadmap. Until then, a human reads every email — thanks for your patience.</p>
+</main>
+<footer>Plasma Cards AR · content served via GitHub Pages</footer>
+</body>
+</html>
