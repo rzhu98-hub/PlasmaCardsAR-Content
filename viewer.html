@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Viewer — Plasma Cards AR</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+  :root { --bg:#060b18; --panel:#0d1830; --accent:#38b6ff; --glow:#7ee0ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:#e8eefb;
+         font-family:-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.5; }
+  nav { padding:14px 20px; } nav a { color:var(--glow); text-decoration:none; }
+  main { max-width:900px; margin:0 auto; padding:0 16px 48px; }
+  h1 { font-size:1.5em; margin:6px 0 2px; text-align:center; }
+  .org { color:#9fb2d4; text-align:center; margin:0 0 14px; font-size:0.95em; }
+  model-viewer { width:100%; height:62vh; background:radial-gradient(ellipse at center,
+                 #10254d 0%, var(--bg) 75%); border:1px solid #1c2c52; border-radius:16px; }
+  .row { display:flex; gap:10px; justify-content:center; margin:16px 0; flex-wrap:wrap; }
+  .btn { background:var(--panel); color:#e8eefb; border:1px solid #1c2c52;
+         border-radius:10px; padding:11px 18px; font-size:15px; cursor:pointer;
+         text-decoration:none; display:inline-block; }
+  .btn.acc { background:var(--accent); color:#04101f; font-weight:700; border:none; }
+  .facts { background:var(--panel); border:1px solid #1c2c52; border-radius:14px;
+           padding:16px 20px; margin-top:10px; }
+  .facts .size { color:var(--glow); font-size:0.92em; }
+  .hint { text-align:center; color:#5c6b8a; font-size:0.85em; margin-top:8px; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">← Plasma Cards AR home</a></nav>
+<main>
+  <h1 id="name">Loading…</h1>
+  <p class="org" id="org"></p>
+
+  <model-viewer id="mv" camera-controls auto-rotate auto-rotate-delay="1500"
+                rotation-per-second="20deg" shadow-intensity="0.6" exposure="0.9"
+                interaction-prompt="auto" ar></model-viewer>
+  <p class="hint">Drag to spin · scroll or pinch to zoom · on a phone, the AR button places it in your room</p>
+
+  <div class="row">
+    <button class="btn" id="prev">‹ Previous</button>
+    <a class="btn acc" id="learn" target="_blank" rel="noopener">Learn More ↗</a>
+    <button class="btn" id="next">Next ›</button>
+  </div>
+
+  <div class="facts">
+    <div id="blurb"></div>
+    <div class="size" id="size"></div>
+  </div>
+</main>
+
+<script>
+let cards = [], idx = 0;
+
+function show(i) {
+  idx = (i + cards.length) % cards.length;
+  const c = cards[idx];
+  document.getElementById("mv").src = c.glb;
+  document.getElementById("name").textContent = c.displayName;
+  document.getElementById("org").textContent = c.fullName + " — " + c.org;
+  document.getElementById("blurb").textContent = c.blurb;
+  document.getElementById("size").textContent = "Actual size: " + c.realSize;
+  document.getElementById("learn").href = c.url;
+  const u = new URL(location); u.searchParams.set("card", c.id);
+  history.replaceState(null, "", u);
+}
+
+fetch("cards.json").then(r => r.json()).then(d => {
+  cards = d.cards.filter(c => c.glb);
+  const want = new URLSearchParams(location.search).get("card");
+  const i = cards.findIndex(c => c.id === want);
+  show(i >= 0 ? i : 0);
+});
+
+document.getElementById("prev").onclick = () => show(idx - 1);
+document.getElementById("next").onclick = () => show(idx + 1);
+</script>
+</body>
+</html>

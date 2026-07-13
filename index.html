@@ -88,6 +88,7 @@ fetch('cards.json').then(r=>r.json()).then(d=>{
     el.innerHTML = `<img src="${c.image}" alt="${c.displayName} trading card">
       <div class="body"><h3>${c.displayName}</h3><div class="org">${c.fullName}<br>${c.org}</div>
       <p>${c.blurb}</p><p class="size">${c.realSize}</p>
+      <a href="viewer.html?card=${c.id}"><b>Play with the 3D model ⚛</b></a> ·
       <a href="${c.url}" target="_blank" rel="noopener">Learn more →</a></div>`;
     g.appendChild(el);
   });
