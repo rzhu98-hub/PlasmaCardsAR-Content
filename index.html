@@ -26,6 +26,10 @@
   .card .org { color:#9fb2d4; font-size:0.85em; margin-bottom:8px; }
   .card p { font-size:0.92em; margin:8px 0; }
   .card a { color:var(--glow); text-decoration:none; font-weight:600; }
+  .card .actions { display:flex; gap:10px; margin-top:12px; }
+  .card .bt { flex:1; text-align:center; padding:10px 8px; border-radius:9px;
+              border:1px solid #2a4070; color:#e8eefb; font-size:0.92em; }
+  .card .bt-acc { background:var(--accent); border:none; color:#04101f; }
   .size { color:#ffce6b; font-size:0.85em; }
   .how { background:var(--panel); border-radius:14px; padding:24px 28px; border:1px solid #1c2c52; }
   .how ol { margin:8px 0 0 18px; padding:0; }
@@ -88,8 +92,10 @@ fetch('cards.json').then(r=>r.json()).then(d=>{
     el.innerHTML = `<img src="${c.image}" alt="${c.displayName} trading card">
       <div class="body"><h3>${c.displayName}</h3><div class="org">${c.fullName}<br>${c.org}</div>
       <p>${c.blurb}</p><p class="size">${c.realSize}</p>
-      <a href="viewer.html?card=${c.id}"><b>Play with the 3D model ⚛</b></a> ·
-      <a href="${c.url}" target="_blank" rel="noopener">Learn more →</a></div>`;
+      <div class="actions">
+        <a class="bt bt-acc" href="viewer.html?card=${c.id}">⚛ 3D model</a>
+        <a class="bt" href="${c.url}" target="_blank" rel="noopener">Learn more ↗</a>
+      </div></div>`;
     g.appendChild(el);
   });
 });
