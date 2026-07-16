@@ -8,6 +8,7 @@ The app (Unity Addressables) loads from:
 Folders:
 - `StandaloneWindows64/` — bundles for Windows editor/desktop testing
 - `iOS/` — bundles for the iPhone build (built on the Mac with build target iOS)
+- `Android/` — bundles for the Android APK build
 
 To update content: rebuild Addressables in Unity (Build > New Build > Default
 Build Script), copy the new files from `PlasmaCardsAR/ServerData/<platform>/`
