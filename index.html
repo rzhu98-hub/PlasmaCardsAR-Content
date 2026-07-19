@@ -3,97 +3,266 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plasma Cards AR — fusion reactors on your table</title>
+<title>Plasma Cards AR — hold a fusion reactor in your hand</title>
+<meta name="description" content="Point your phone at a plasma physics trading card and watch a real fusion reactor rise off the table. Spin it, save it, and learn how fusion works.">
 <style>
-  :root { --bg:#060b18; --panel:#0d1830; --accent:#38b6ff; --glow:#7ee0ff; }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:#e8eefb;
-         font-family:-apple-system, "Segoe UI", Roboto, sans-serif; line-height:1.55; }
-  header { text-align:center; padding:72px 20px 48px;
-           background:radial-gradient(ellipse at top, #10254d 0%, var(--bg) 70%); }
-  h1 { font-size:2.6em; margin:0 0 8px; letter-spacing:0.5px; }
-  .slogan { font-size:1.35em; color:var(--glow); font-style:italic; margin:0 0 18px; }
-  .sub { color:#9fb2d4; max-width:640px; margin:0 auto; }
-  main { max-width:1000px; margin:0 auto; padding:24px 20px 64px; }
-  h2 { color:var(--accent); margin-top:48px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
-  .card { background:var(--panel); border-radius:14px; overflow:hidden;
-          border:1px solid #1c2c52; transition:transform .15s; }
-  .card:hover { transform:translateY(-4px); }
-  .card img { width:100%; display:block; }
-  .card .body { padding:14px 16px 18px; }
-  .card h3 { margin:0 0 2px; }
-  .card .org { color:#9fb2d4; font-size:0.85em; margin-bottom:8px; }
-  .card p { font-size:0.92em; margin:8px 0; }
-  .card a { color:var(--glow); text-decoration:none; font-weight:600; }
-  .card .actions { display:flex; gap:10px; margin-top:12px; }
-  .card .bt { flex:1; text-align:center; padding:10px 8px; border-radius:9px;
-              border:1px solid #2a4070; color:#e8eefb; font-size:0.92em; }
-  .card .bt-acc { background:var(--accent); border:none; color:#04101f; }
-  .size { color:#ffce6b; font-size:0.85em; }
-  .how { background:var(--panel); border-radius:14px; padding:24px 28px; border:1px solid #1c2c52; }
-  .how ol { margin:8px 0 0 18px; padding:0; }
-  .how li { margin:6px 0; }
-  footer { text-align:center; color:#5f7096; padding:32px 16px; font-size:0.85em; }
-  a { color:var(--accent); }
-  .btn { display:inline-block; background:var(--accent); color:#04101f !important;
-         padding:10px 22px; border-radius:10px; font-weight:700; text-decoration:none; margin-top:12px; }
+  :root{
+    --void:#04070f; --bg:#060b18; --surface:#0b1428; --surface-2:#0d1830; --tile:#091124;
+    --line:#1c2c52; --line-hot:#2a3f78;
+    --cyan:#38b6ff; --glow:#7ee0ff; --violet:#8b6cff; --magenta:#ff4d9d; --amber:#ffb84d; --green:#16c495;
+    --text:#e8eefb; --muted:#9fb2d4; --faint:#5f7096;
+    --mono:ui-monospace,"SF Mono",Menlo,"Cascadia Code",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color-scheme: dark;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--void); color:var(--text); font-family:var(--sans); line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  a{ color:var(--cyan); text-decoration:none; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:0 clamp(18px,4vw,32px); }
+  section{ padding:clamp(56px,9vw,110px) 0; }
+
+  .eyebrow{ font-family:var(--mono); font-size:12px; letter-spacing:.32em; text-transform:uppercase;
+    color:var(--glow); margin:0 0 16px; filter:drop-shadow(0 0 10px rgba(126,224,255,.4)); }
+  h2{ font-size:clamp(26px,4.5vw,40px); font-weight:800; letter-spacing:-.02em; margin:0 0 10px; line-height:1.1;
+    background:linear-gradient(180deg,#fff,var(--cyan)); -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; }
+  .lead{ color:var(--muted); font-size:clamp(16px,2.2vw,19px); max-width:60ch; }
+
+  /* ---------- HERO ---------- */
+  .hero{ position:relative; min-height:100svh; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:80px 20px; }
+  #orb{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+  .hero-veil{ position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(58% 50% at 50% 46%, transparent 42%, rgba(4,7,15,.5) 86%),
+              linear-gradient(180deg, transparent 60%, var(--void)); }
+  .hero-in{ position:relative; z-index:2; }
+  .hero .tag{ font-family:var(--mono); font-size:12px; letter-spacing:.42em; text-transform:uppercase;
+    color:var(--glow); margin:0 0 22px; text-indent:.42em; filter:drop-shadow(0 0 12px rgba(126,224,255,.5)); }
+  .hero h1{ margin:0; font-weight:800; letter-spacing:.12em; line-height:.98; text-transform:uppercase;
+    font-size:clamp(44px,10vw,108px);
+    background:linear-gradient(180deg,#fff 0%,#cfe6ff 42%,var(--cyan) 80%,var(--violet) 118%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 6px 46px rgba(56,182,255,.4)); }
+  .hero .slogan{ font-family:var(--mono); color:var(--amber); font-size:clamp(14px,2vw,18px); margin:24px auto 0;
+    max-width:40ch; filter:drop-shadow(0 0 12px rgba(255,184,77,.25)); }
+  .hero .sub{ color:var(--muted); max-width:54ch; margin:18px auto 0; font-size:clamp(15px,2vw,18px); }
+  .cta{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:34px; }
+  .btn{ font-weight:700; font-size:15px; padding:13px 26px; border-radius:14px; border:1px solid var(--line-hot);
+    color:var(--text); background:rgba(20,34,74,.5); transition:transform .15s, box-shadow .15s, background .15s; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-primary{ background:linear-gradient(180deg,#5ec2ff,var(--cyan)); color:#04101f; border:none;
+    box-shadow:0 10px 30px -8px rgba(56,182,255,.6); }
+  .scrollcue{ position:absolute; bottom:26px; left:50%; transform:translateX(-50%); z-index:2;
+    font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--faint); }
+
+  /* ---------- MISSION ---------- */
+  .mission{ background:linear-gradient(180deg,var(--void),#060c1a); border-top:1px solid var(--line); }
+  .mission .lead{ font-size:clamp(18px,2.6vw,23px); color:var(--text); max-width:44ch; }
+  .mission blockquote{ margin:34px 0 0; padding:0 0 0 22px; border-left:3px solid var(--amber);
+    color:var(--amber); font-family:var(--mono); font-size:clamp(15px,2.2vw,19px); font-style:normal; }
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px; margin-top:48px; }
+  .stat{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px 24px; }
+  .stat .n{ font-size:34px; font-weight:800; background:linear-gradient(180deg,#fff,var(--cyan));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+  .stat .l{ color:var(--muted); font-size:14px; margin-top:8px; }
+
+  /* ---------- FUSION BASICS ---------- */
+  .basics-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:40px; }
+  .concept{ background:linear-gradient(180deg,var(--surface),#070d1c); border:1px solid var(--line);
+    border-radius:18px; padding:26px 24px; position:relative; overflow:hidden;
+    transition:transform .18s, border-color .18s; }
+  .concept:hover{ transform:translateY(-4px); border-color:var(--line-hot); }
+  .concept .glyph{ width:56px; height:56px; margin-bottom:16px; filter:drop-shadow(0 0 12px rgba(56,182,255,.5)); }
+  .concept .glyph .s{ fill:none; stroke:var(--glow); stroke-width:2.2; }
+  .concept .glyph .t{ fill:none; stroke:var(--magenta); stroke-width:1.4; opacity:.8; }
+  .concept h3{ margin:0 0 8px; font-size:19px; }
+  .concept p{ margin:0; color:var(--muted); font-size:14.5px; }
+  .concept .num{ position:absolute; top:16px; right:20px; font-family:var(--mono); font-size:12px; color:var(--faint); }
+
+  /* ---------- REACTORS GRID (from cards.json) ---------- */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; margin-top:40px; }
+  .card{ background:var(--surface-2); border-radius:16px; overflow:hidden; border:1px solid var(--line);
+    transition:transform .18s, box-shadow .18s, border-color .18s; display:flex; flex-direction:column; }
+  .card:hover{ transform:translateY(-6px); border-color:var(--line-hot); box-shadow:0 24px 50px -24px rgba(56,182,255,.35); }
+  .card img{ width:100%; display:block; background:#050a16; }
+  .card .body{ padding:18px 20px 22px; display:flex; flex-direction:column; flex:1; }
+  .card h3{ margin:0 0 2px; font-size:20px; }
+  .card .org{ color:var(--muted); font-size:.85em; margin-bottom:10px; }
+  .card p{ font-size:.93em; margin:6px 0; color:var(--text); }
+  .card .size{ color:var(--amber); font-family:var(--mono); font-size:.82em; }
+  .card .actions{ display:flex; gap:10px; margin-top:auto; padding-top:14px; }
+  .card .bt{ flex:1; text-align:center; padding:11px 8px; border-radius:11px; border:1px solid var(--line-hot);
+    color:var(--text); font-size:.9em; font-weight:600; }
+  .card .bt-acc{ background:linear-gradient(180deg,#5ec2ff,var(--cyan)); border:none; color:#04101f; }
+
+  /* ---------- HOW / PANELS ---------- */
+  .panel{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:clamp(22px,4vw,34px); }
+  .steps{ counter-reset:s; display:grid; gap:14px; margin:0; padding:0; list-style:none; }
+  .steps li{ counter-increment:s; position:relative; padding:4px 0 4px 52px; color:var(--muted); }
+  .steps li::before{ content:counter(s); position:absolute; left:0; top:0; width:34px; height:34px;
+    display:grid; place-items:center; border-radius:10px; background:rgba(56,182,255,.12);
+    border:1px solid var(--line-hot); color:var(--glow); font-family:var(--mono); font-weight:700; }
+  .steps li b{ color:var(--text); }
+  .two{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  @media (max-width:720px){ .two{ grid-template-columns:1fr; } }
+  .cta-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
+
+  footer{ border-top:1px solid var(--line); padding:44px 0 60px; text-align:center; color:var(--faint); font-size:14px; }
+  footer img{ border-radius:12px; display:block; margin:0 auto 12px; }
+  footer a{ color:var(--glow); }
+
+  @media (prefers-reduced-motion: reduce){ #orb{ opacity:.85; } }
 </style>
 </head>
 <body>
-<header>
-  <h1>Plasma Cards AR</h1>
-  <p class="slogan">"A day without fusion is a day without sunshine."</p>
-  <p class="sub">Point your phone at a plasma physics trading card and watch the fusion
-     reactor rise off the table — spin it, save it to your library, and learn how it works.</p>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <canvas id="orb"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-in">
+    <p class="tag">Columbia Plasma Physics</p>
+    <h1>Plasma Cards<br>AR</h1>
+    <p class="slogan">"A day without fusion is a day without sunshine."</p>
+    <p class="sub">Point your phone at a plasma physics trading card and watch a real fusion reactor
+       rise off the table. Spin it, save it, and learn how a star in a bottle actually works.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#reactors">See the reactors</a>
+      <a class="btn" href="#print">Print your own cards</a>
+    </div>
+  </div>
+  <div class="scrollcue">Scroll</div>
 </header>
-<main>
-  <h2>The Reactors</h2>
-  <div class="grid" id="grid"></div>
 
-  <h2>How it works</h2>
-  <div class="how">
-    <ol>
-      <li>Print a plasma trading card (or grab one at an outreach event).</li>
-      <li>Open the Plasma Cards AR app and point the camera at the card.</li>
-      <li>The matching 3D reactor model appears, anchored to the card.</li>
-      <li>Tap <b>Save to My Library</b> to keep it — then spin and zoom it any time, no card needed.</li>
-    </ol>
-    <p>The models stream from this site, so new reactors appear in the app the moment
-       they're published — no app update needed.</p>
+<!-- ================= MISSION ================= -->
+<section class="mission">
+  <div class="wrap">
+    <p class="eyebrow">The idea</p>
+    <h2>A star in a bottle, on your table.</h2>
+    <p class="lead">Fusion is how the Sun makes light — squeezing hydrogen so hard that nuclei merge and
+      release energy. On Earth, scientists chase it inside machines that hold plasma at 100&nbsp;million
+      degrees with nothing but magnetic fields. Plasma Cards AR shrinks those machines down to your palm.</p>
+    <blockquote>Enable a million people to hold a world-class fusion experiment in the palm of their hand.</blockquote>
+    <div class="stats">
+      <div class="stat"><div class="n">100M&nbsp;°C</div><div class="l">Hotter than the Sun's core — the heat fusion needs</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">Reactors you can scan today, from tokamaks to a fusion rocket</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">Walls touching the plasma — magnetic fields do the holding</div></div>
+    </div>
   </div>
+</section>
 
-  <h2>Print your own cards</h2>
-  <div class="how">
-    <p>Print the deck at exact physical size (12.7 × 7.14 cm — print at 100%, no scaling,
-       and check the 10 cm ruler on each page), then scan the cards with the app.</p>
-    <a class="btn" href="PlasmaCards-Print.pdf">Download print PDF</a>
-    &nbsp; <a class="btn" href="cardtest.html">Or show true-size cards on a screen</a>
+<!-- ================= FUSION BASICS ================= -->
+<section id="basics">
+  <div class="wrap">
+    <p class="eyebrow">Get to know fusion</p>
+    <h2>Four ideas behind every reactor</h2>
+    <p class="lead">The same concepts you can explore inside the app — here's the short version.</p>
+    <div class="basics-grid">
+      <div class="concept"><span class="num">01</span>
+        <svg class="glyph" viewBox="0 0 60 60"><circle cx="30" cy="30" r="6" class="t"/><circle cx="16" cy="20" r="3" class="s"/><circle cx="44" cy="18" r="3" class="s"/><circle cx="42" cy="42" r="3" class="s"/><circle cx="18" cy="42" r="3" class="s"/></svg>
+        <h3>Plasma</h3>
+        <p>A gas so hot its atoms break into free-moving charged particles — the fourth state of matter, and what stars are made of.</p>
+      </div>
+      <div class="concept"><span class="num">02</span>
+        <svg class="glyph" viewBox="0 0 60 60"><ellipse cx="30" cy="30" rx="20" ry="9" class="s"/><ellipse cx="30" cy="30" rx="9" ry="20" class="t"/></svg>
+        <h3>Magnetic bottle</h3>
+        <p>No wall can touch 100-million-degree plasma. Magnetic field lines act like invisible rails that trap it in mid-air.</p>
+      </div>
+      <div class="concept"><span class="num">03</span>
+        <svg class="glyph" viewBox="0 0 60 60"><ellipse cx="30" cy="30" rx="16" ry="20" class="s"/><ellipse cx="30" cy="30" rx="6" ry="20" class="t"/><line x1="30" y1="8" x2="30" y2="52" class="t"/></svg>
+        <h3>Many shapes</h3>
+        <p>Tokamaks, spherical tokamaks, field-reversed configurations — each design is a different bet on how to hold plasma best.</p>
+      </div>
+      <div class="concept"><span class="num">04</span>
+        <svg class="glyph" viewBox="0 0 60 60"><circle cx="30" cy="30" r="18" class="s"/><circle cx="30" cy="30" r="3" class="t"/><line x1="30" y1="4" x2="30" y2="12" class="t"/><line x1="30" y1="48" x2="30" y2="56" class="t"/></svg>
+        <h3>What to notice</h3>
+        <p>Ask: what shape is the field? How big is the machine? What question was it built to answer — power, control, or space travel?</p>
+      </div>
+    </div>
   </div>
+</section>
 
-  <h2>Add your reactor</h2>
-  <div class="how">
-    <p>Have a CAD model of a fusion machine and want it as a card? Send it in —
-       maintainers review every submission and publish approved models to the deck.</p>
-    <a class="btn" href="submit.html">Submit a reactor →</a>
+<!-- ================= REACTORS ================= -->
+<section id="reactors">
+  <div class="wrap">
+    <p class="eyebrow">The deck</p>
+    <h2>The reactors</h2>
+    <p class="lead">Real fusion machines from labs around the world. Tap a 3D model to spin it in your browser,
+      or scan the printed card in the app.</p>
+    <div class="grid" id="grid"></div>
   </div>
+</section>
 
-  <h2>Credits</h2>
-  <p>Inspired by Columbia University's
-     <a href="https://www.columbia.edu/~tq2115/index.html">Plasma Physics Trading Cards</a>.
-     Built with Unity + AR Foundation. Models and card art belong to their respective institutions.</p>
-</main>
+<!-- ================= HOW IT WORKS ================= -->
+<section id="how">
+  <div class="wrap">
+    <p class="eyebrow">Using it</p>
+    <h2>How it works</h2>
+    <div class="two" style="margin-top:34px;">
+      <div class="panel">
+        <ol class="steps">
+          <li>Print a plasma trading card, or grab one at an outreach event.</li>
+          <li>Open <b>Plasma Cards AR</b> and point the camera at the card.</li>
+          <li>The matching <b>3D reactor</b> rises off the card, anchored in real space.</li>
+          <li>Tap <b>Save to My Library</b> — then spin, zoom, and read it any time, no card needed.</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <p class="eyebrow" style="margin-bottom:12px;">Always fresh</p>
+        <p style="color:var(--muted); margin:0 0 16px;">Models stream from this site, so new reactors appear
+          in the app the moment they're published — no app update required.</p>
+        <p class="eyebrow" style="margin:0 0 12px;">Built with</p>
+        <p style="color:var(--muted); margin:0;">Unity + AR Foundation, running Apple ARKit and Google ARCore
+          under the hood. The physical card is the controller — move it, and the reactor moves with it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRINT / SUBMIT ================= -->
+<section id="print" style="padding-top:0;">
+  <div class="wrap two">
+    <div class="panel">
+      <p class="eyebrow" style="margin-bottom:12px;">Print your own</p>
+      <h3 style="margin:0 0 10px; font-size:22px;">Make the deck real</h3>
+      <p style="color:var(--muted); margin:0 0 6px;">Print at exact physical size — 12.7 × 7.14 cm, at 100%
+        with no scaling, and check the 10&nbsp;cm ruler on each page — then scan with the app.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="PlasmaCards-Print.pdf">Download print PDF</a>
+        <a class="btn" href="cardtest.html">Show true-size cards on screen</a>
+      </div>
+    </div>
+    <div class="panel">
+      <p class="eyebrow" style="margin-bottom:12px;">Add your reactor</p>
+      <h3 style="margin:0 0 10px; font-size:22px;">Have a CAD model?</h3>
+      <p style="color:var(--muted); margin:0 0 6px;">Send in a fusion machine and maintainers will review it —
+        approved models get published to the deck for everyone.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="submit.html">Submit a reactor →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer>
-  <img src="qr.png" alt="QR code linking to this site" width="110" height="110"
-       style="border-radius:10px; display:block; margin:0 auto 10px"><br>
-  Plasma Cards AR · content served via GitHub Pages · <a href="cardtest.html" style="color:#7ee0ff">true-size card tester</a>
+  <div class="wrap">
+    <img src="qr.png" alt="QR code linking to this site" width="104" height="104">
+    <p>Inspired by Columbia University's
+      <a href="https://www.columbia.edu/~tq2115/index.html">Plasma Physics Trading Cards</a>.<br>
+      Content served via GitHub Pages · Models and card art belong to their respective institutions ·
+      <a href="cardtest.html">true-size card tester</a></p>
+  </div>
 </footer>
+
 <script>
+/* ---- Reactor grid from cards.json ---- */
 fetch('cards.json').then(r=>r.json()).then(d=>{
   const g = document.getElementById('grid');
   d.cards.forEach(c=>{
     const el = document.createElement('div'); el.className='card';
-    el.innerHTML = `<img src="${c.image}" alt="${c.displayName} trading card">
+    el.innerHTML = `<img src="${c.image}" alt="${c.displayName} trading card" loading="lazy">
       <div class="body"><h3>${c.displayName}</h3><div class="org">${c.fullName}<br>${c.org}</div>
       <p>${c.blurb}</p><p class="size">${c.realSize}</p>
       <div class="actions">
@@ -102,7 +271,51 @@ fetch('cards.json').then(r=>r.json()).then(d=>{
       </div></div>`;
     g.appendChild(el);
   });
-});
+}).catch(()=>{});
+
+/* ---- Plasma orb hero (same effect as the app's front page) ---- */
+(function(){
+  const c = document.getElementById('orb'), ctx = c.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let DPR = Math.min(devicePixelRatio||1, 2), W=0, H=0, cx=0, cy=0;
+  function size(){ const r=c.getBoundingClientRect(); W=r.width; H=r.height; c.width=W*DPR; c.height=H*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0); cx=W/2; cy=H*0.46; }
+  size(); addEventListener('resize', size);
+
+  const N = 1500, R = 1.0, r = 0.36, tilt = 0.6, st=Math.sin(tilt), ct=Math.cos(tilt);
+  const P = [];
+  for(let i=0;i<N;i++) P.push({ th:Math.random()*6.2832, ph:Math.random()*6.2832,
+    sp:0.004+Math.random()*0.010, ps:0.02+Math.random()*0.05, h:Math.random() });
+  function mix(a,b,t){ return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]; }
+  const C_cyan=[86,200,255], C_violet=[139,108,255], C_mag=[255,77,157], C_core=[234,246,255];
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    const scale = Math.min(W,H)*0.34;
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,scale*1.2);
+    g.addColorStop(0,'rgba(180,220,255,0.20)'); g.addColorStop(0.4,'rgba(120,90,255,0.09)');
+    g.addColorStop(1,'rgba(4,7,15,0)');
+    ctx.fillStyle=g; ctx.fillRect(cx-scale*1.4,cy-scale*1.4,scale*2.8,scale*2.8);
+    ctx.globalCompositeOperation='lighter';
+    for(let i=0;i<N;i++){
+      const p=P[i];
+      if(!reduce){ p.th+=p.sp; p.ph+=p.ps; }
+      const rr=R+r*Math.cos(p.ph), x=rr*Math.cos(p.th), y=r*Math.sin(p.ph), z=rr*Math.sin(p.th);
+      const y2=y*ct-z*st, z2=y*st+z*ct;
+      const depth=(z2+1.4)/2.8, persp=1/(1.8-z2*0.5);
+      const sx=cx+x*scale*persp, sy=cy+y2*scale*persp;
+      const hot=(Math.cos(p.ph)+1)/2;
+      let col=mix(C_cyan,C_violet,p.h); col=mix(col,C_mag,hot*0.6);
+      if(hot>0.75) col=mix(col,C_core,(hot-0.75)*3);
+      const a=(0.10+depth*0.55)*(0.5+hot*0.7), rad=0.6+depth*1.7;
+      ctx.fillStyle='rgba('+(col[0]|0)+','+(col[1]|0)+','+(col[2]|0)+','+a.toFixed(3)+')';
+      ctx.beginPath(); ctx.arc(sx,sy,rad,0,6.2832); ctx.fill();
+    }
+    ctx.globalCompositeOperation='source-over';
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
