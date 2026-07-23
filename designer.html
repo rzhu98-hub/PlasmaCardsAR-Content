@@ -83,14 +83,38 @@
     border-top:1px solid var(--line); }
   .cardcap{ font-family:var(--mono); font-size:11px; color:var(--faint); letter-spacing:.08em; }
 
-  /* ---- print: only the card, at physical size ---- */
+  /* ---- two card faces: front (reactor) + back (info) ---- */
+  .faces{ display:flex; gap:18px; flex-wrap:wrap; justify-content:center; }
+  .cface{ width:var(--card-w); height:var(--card-h); border-radius:12px; overflow:hidden; position:relative;
+    color:var(--text); border:1px solid var(--line-hot); background:#060c1a; display:flex; flex-direction:column;
+    box-shadow:0 24px 48px -22px rgba(0,0,0,.8); font-size:9pt; }
+  .cface.front{ background:#060c1a center/cover no-repeat; }
+  .cface.front .noimg{ position:absolute; inset:0; display:grid; place-items:center; color:var(--faint);
+    font-family:var(--mono); font-size:8pt; text-align:center; padding:14px; }
+  .cface.front .name{ position:absolute; left:0; right:0; bottom:0; padding:10px 12px 9px;
+    background:linear-gradient(180deg,transparent,rgba(4,7,15,.92)); }
+  .cface.front .name h2{ margin:0; font-size:15pt; font-weight:800;
+    background:linear-gradient(180deg,#fff,var(--cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .cface.front .pill{ display:inline-block; margin-top:5px; font-family:var(--mono); font-size:6pt; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--glow); padding:3px 8px; border-radius:999px; background:rgba(56,182,255,.14); border:1px solid rgba(56,182,255,.34); }
+  .cface.back{ padding:12px 13px; gap:5px; }
+  .cface.back .full{ font-weight:700; font-size:9pt; line-height:1.15; }
+  .cface.back .org{ color:var(--muted); font-size:7pt; }
+  .cface.back .scale{ color:var(--amber); font-family:var(--mono); font-size:6.5pt; }
+  .cface.back .blurb{ font-size:8pt; color:#d4def2; line-height:1.3; margin-top:2px; }
+  .cface.back .foot{ margin-top:auto; display:flex; justify-content:space-between; font-family:var(--mono);
+    font-size:5.5pt; color:var(--faint); padding-top:6px; border-top:1px solid var(--line); }
+  .facelbl{ text-align:center; font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; margin-top:9px; }
+  .facelbl.f{ color:var(--cyan); } .facelbl.b{ color:var(--muted); }
+
+  /* ---- print: only the two card faces, at physical size ---- */
   @media print{
     :root{ color-scheme: light; }
     body *{ visibility:hidden; }
     .stage, .stage *{ visibility:visible; }
-    .cardcap{ display:none; }
+    .facelbl{ display:none; }
     .stage{ position:static; }
-    .card{ box-shadow:none; border:1px solid #333; }
+    .cface{ box-shadow:none; border:1px solid #333; }
     @page{ margin:12mm; }
   }
 </style>
@@ -113,7 +137,7 @@
     </div>
 
     <div class="field">
-      <label>Reactor image (the head — this is what the camera scans)</label>
+      <label>Reactor image (the FRONT — what the camera scans)</label>
       <input id="img" type="file" accept="image/*">
       <div class="hint">A busy, high-contrast picture tracks best in AR.</div>
     </div>
@@ -134,25 +158,27 @@
     </div>
   </div>
 
-  <!-- LIVE PREVIEW -->
+  <!-- LIVE PREVIEW — two sides -->
   <div class="stage">
-    <div class="card" id="card">
-      <div class="head" id="head">
-        <div class="noimg" id="noimg">add a reactor image ↑</div>
-        <div class="name">
-          <h2 id="p_name">Your Reactor</h2>
-          <span class="pill" id="p_type">REACTOR TYPE</span>
+    <div class="faces">
+      <div>
+        <div class="cface front" id="frontimg">
+          <div class="noimg" id="noimg">add a reactor image ↑</div>
+          <div class="name"><h2 id="p_name">Your Reactor</h2><span class="pill" id="p_type">REACTOR TYPE</span></div>
         </div>
+        <div class="facelbl f">Front · scan this</div>
       </div>
-      <div class="tail">
-        <div class="full" id="p_full">Full machine name</div>
-        <div class="org" id="p_org">Institution</div>
-        <div class="scale" id="p_scale">scale / size</div>
-        <div class="blurb" id="p_blurb">One sentence about what it is and why it matters.</div>
-        <div class="foot"><span>PLASMA PHYSICS TRADING CARDS</span><span id="p_url">scan me</span></div>
+      <div>
+        <div class="cface back">
+          <div class="full" id="p_full">Full machine name</div>
+          <div class="org" id="p_org">Institution</div>
+          <div class="scale" id="p_scale">scale / size</div>
+          <div class="blurb" id="p_blurb">One sentence about what it is and why it matters.</div>
+          <div class="foot"><span>PLASMA PHYSICS TRADING CARDS</span><span id="p_url">scan me</span></div>
+        </div>
+        <div class="facelbl b">Back · info</div>
       </div>
     </div>
-    <div class="cardcap">live preview · portrait · head = reactor, tail = info</div>
   </div>
 </div>
 
@@ -178,7 +204,7 @@ fields.forEach(f => $(f).addEventListener('input', render));
 $('img').addEventListener('change', e => {
   const file = e.target.files[0]; if(!file) return;
   const r = new FileReader();
-  r.onload = ev => { $('head').style.backgroundImage = `url(${ev.target.result})`; $('noimg').style.display='none'; };
+  r.onload = ev => { $('frontimg').style.backgroundImage = `url(${ev.target.result})`; $('noimg').style.display='none'; };
   r.readAsDataURL(file);
 });
 
@@ -195,13 +221,14 @@ $('startFrom').addEventListener('change', e=>{
   $('displayName').value = c.displayName||''; $('fullName').value = c.fullName||'';
   $('org').value = c.org||''; $('realSize').value = c.realSize||''; $('blurb').value = c.blurb||''; $('url').value = c.url||'';
   $('type').value = ''; // type isn't in cards.json; leave for the user
-  if(c.image){ $('head').style.backgroundImage = `url(${c.image})`; $('noimg').style.display='none'; }
+  const fr = c.front || ('cards/split/' + c.id + '-front.png');
+  $('frontimg').style.backgroundImage = `url(${fr})`; $('noimg').style.display='none';
   render();
 });
 
 $('reset').addEventListener('click', ()=>{
   fields.forEach(f=> $(f).value=''); $('startFrom').value='';
-  $('head').style.backgroundImage=''; $('noimg').style.display=''; render();
+  $('frontimg').style.backgroundImage=''; $('noimg').style.display=''; render();
 });
 
 render();

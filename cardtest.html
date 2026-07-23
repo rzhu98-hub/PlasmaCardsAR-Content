@@ -3,48 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PlasmaCards — true-size card tester</title>
+<title>Plasma Physics Trading Cards — true-size tester (poker)</title>
 <style>
-  :root { --bg:#060b18; --panel:#0d1830; --accent:#38b6ff; }
-  body { margin:0; background:var(--bg); color:#e8eefb;
-         font-family:-apple-system,"Segoe UI",sans-serif; -webkit-user-select:none; }
+  :root { --bg:#060b18; --panel:#0d1830; --accent:#38b6ff; --glow:#7ee0ff; --muted:#9fb2d4; }
+  body { margin:0; background:var(--bg); color:#e8eefb; font-family:-apple-system,"Segoe UI",sans-serif; -webkit-user-select:none; }
   #setup { padding:22px; max-width:760px; margin:0 auto; }
   h2 { color:var(--accent); }
   #bar { height:26px; background:var(--accent); margin:12px 0; border-radius:4px; }
   input[type=range] { width:100%; }
-  button.cardbtn { font-size:17px; padding:12px 18px; margin:6px; cursor:pointer;
+  button.cardbtn { font-size:16px; padding:11px 16px; margin:6px; cursor:pointer;
          background:var(--panel); color:#e8eefb; border:1px solid #1c2c52; border-radius:10px; }
-  #stage { position:fixed; inset:0; background:#000; display:none;
-           align-items:center; justify-content:center; }
+  #stage { position:fixed; inset:0; background:#000; display:none; align-items:center; justify-content:center; }
   #card { display:block; }
-  .nav { position:fixed; top:50%; transform:translateY(-50%); z-index:5;
-         font-size:34px; line-height:1; padding:18px 20px; border-radius:14px;
-         background:rgba(13,24,48,0.85); color:#e8eefb; border:1px solid #1c2c52; cursor:pointer; }
+  .nav { position:fixed; top:50%; transform:translateY(-50%); z-index:5; font-size:34px; line-height:1;
+         padding:18px 20px; border-radius:14px; background:rgba(13,24,48,0.85); color:#e8eefb; border:1px solid #1c2c52; cursor:pointer; }
   #prev { left:12px; } #next { right:12px; }
-  #back { position:fixed; top:12px; left:12px; z-index:5; font-size:16px;
-          padding:10px 16px; border-radius:12px; background:rgba(13,24,48,0.85);
-          color:#e8eefb; border:1px solid #1c2c52; cursor:pointer; }
-  #label { position:fixed; bottom:14px; left:0; right:0; text-align:center;
-           color:#9fb2d4; font-size:15px; z-index:5; }
+  #back { position:fixed; top:12px; left:12px; z-index:5; font-size:15px; padding:10px 15px; border-radius:12px;
+          background:rgba(13,24,48,0.85); color:#e8eefb; border:1px solid #1c2c52; cursor:pointer; }
+  #flip { position:fixed; top:12px; right:12px; z-index:5; font-size:15px; padding:10px 15px; border-radius:12px;
+          background:rgba(56,182,255,0.2); color:var(--glow); border:1px solid #2a4070; cursor:pointer; }
+  #label { position:fixed; bottom:14px; left:0; right:0; text-align:center; color:var(--muted); font-size:15px; z-index:5; }
 </style>
 </head>
 <body>
 <div id="setup">
   <h2>Step 1 — calibrate once (per device)</h2>
-  <p>Don't pinch-zoom this page. Hold a real ruler against the blue bar and drag
-     the slider until the bar is exactly <b>10&nbsp;cm</b> long.</p>
+  <p>Don't pinch-zoom this page. Hold a real ruler against the blue bar and drag the slider until the bar is exactly <b>10&nbsp;cm</b> long.</p>
   <div id="bar"></div>
   <input type="range" id="cal" min="150" max="1400" step="1">
   <p id="readout"></p>
-  <h2>Step 2 — pick a card (true size: 12.7 × 7.14 cm)</h2>
-  <p>Swipe left/right or use the ‹ › buttons to change cards. Keep the screen
-     flat, brightness up, auto-lock off.</p>
+  <h2>Step 2 — pick a card (true poker size: 63&nbsp;mm wide)</h2>
+  <p>Shows the <b>reactor front</b> at real size on screen — point the app's camera at it to test tracking, no printing needed.
+     Tap <b>Flip</b> to test the info back too. Keep the screen flat, brightness up, auto-lock off.</p>
   <div id="buttons"></div>
 </div>
 
 <div id="stage">
   <img id="card">
   <button id="back">← back</button>
+  <button id="flip">Flip (front ⇄ back)</button>
   <button id="prev" class="nav">‹</button>
   <button id="next" class="nav">›</button>
   <div id="label"></div>
@@ -52,11 +49,11 @@
 
 <script>
 const cards = ["NSTXU-Diagram","ITER-Card","HBTEP-Card","FRC-Card","DFD-Rocket"];
+const CARD_W_MM = 63;   // poker width; the reactor front is registered at this real-world width
 const bar = document.getElementById("bar"), cal = document.getElementById("cal"),
       readout = document.getElementById("readout"), stage = document.getElementById("stage"),
-      img = document.getElementById("card"), setup = document.getElementById("setup"),
-      label = document.getElementById("label");
-let idx = 0;
+      img = document.getElementById("card"), setup = document.getElementById("setup"), label = document.getElementById("label");
+let idx = 0, side = "front";
 
 cal.value = localStorage.getItem("pxPer100mm") || 500;
 function upd() {
@@ -70,47 +67,41 @@ const div = document.getElementById("buttons");
 cards.forEach((c, i) => {
   const b = document.createElement("button");
   b.className = "cardbtn"; b.textContent = c;
-  b.onclick = () => show(i);
+  b.onclick = () => { side = "front"; show(i); };
   div.appendChild(b);
 });
 
 function show(i) {
   idx = (i + cards.length) % cards.length;
-  const ppm = cal.value / 100;
-  img.src = "cards/" + cards[idx] + ".png";
-  img.style.width  = (127 * ppm) + "px";
-  img.style.height = (71.4375 * ppm) + "px";
-  label.textContent = (idx + 1) + " / " + cards.length + " — " + cards[idx];
+  const ppm = cal.value / 100;                       // px per mm
+  img.src = "cards/split/" + cards[idx] + "-" + side + ".png";
+  img.style.width  = (CARD_W_MM * ppm) + "px";       // true 63 mm wide
+  img.style.height = "auto";                         // natural aspect
+  label.textContent = (idx + 1) + " / " + cards.length + " — " + cards[idx] + "  ·  " + side.toUpperCase();
   setup.style.display = "none";
   stage.style.display = "flex";
 }
 
 document.getElementById("prev").onclick = e => { e.stopPropagation(); show(idx - 1); };
 document.getElementById("next").onclick = e => { e.stopPropagation(); show(idx + 1); };
-document.getElementById("back").onclick = e => {
-  e.stopPropagation(); stage.style.display = "none"; setup.style.display = "block";
-};
+document.getElementById("flip").onclick = e => { e.stopPropagation(); side = side === "front" ? "back" : "front"; show(idx); };
+document.getElementById("back").onclick = e => { e.stopPropagation(); stage.style.display = "none"; setup.style.display = "block"; };
 
-// Swipe left/right anywhere on the card view.
 let x0 = null, y0 = null;
-stage.addEventListener("touchstart", e => {
-  x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
-}, { passive: true });
+stage.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
 stage.addEventListener("touchend", e => {
   if (x0 === null) return;
-  const dx = e.changedTouches[0].clientX - x0;
-  const dy = e.changedTouches[0].clientY - y0;
+  const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
   x0 = y0 = null;
-  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5)
-    show(dx < 0 ? idx + 1 : idx - 1);   // swipe left = next, right = previous
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(dx < 0 ? idx + 1 : idx - 1);
 }, { passive: true });
 
-// Desktop conveniences.
 document.addEventListener("keydown", e => {
   if (stage.style.display !== "flex") return;
   if (e.key === "Escape") { stage.style.display = "none"; setup.style.display = "block"; }
   if (e.key === "ArrowRight") show(idx + 1);
   if (e.key === "ArrowLeft")  show(idx - 1);
+  if (e.key === "f" || e.key === "F") { side = side === "front" ? "back" : "front"; show(idx); }
 });
 </script>
 </body>
