@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The 5 cards — front &amp; back · Plasma Physics Trading Cards</title>
+<style>
+  :root{
+    --void:#04070f; --bg:#060b18; --surface:#0b1428; --line:#1c2c52; --line-hot:#2a3f78;
+    --cyan:#38b6ff; --glow:#7ee0ff; --amber:#ffb84d; --text:#e8eefb; --muted:#9fb2d4; --faint:#5f7096;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace; --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color-scheme: dark;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:radial-gradient(1100px 600px at 80% -10%, rgba(56,182,255,.08), transparent 60%), var(--void);
+    color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+  header{ text-align:center; padding:44px 20px 6px; }
+  header .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.32em; text-transform:uppercase; color:var(--glow); margin:0 0 10px; }
+  header h1{ margin:0; font-size:clamp(26px,4vw,38px); font-weight:800;
+    background:linear-gradient(180deg,#fff,var(--cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  header p{ color:var(--muted); max-width:62ch; margin:10px auto 0; }
+
+  .deck{ display:flex; flex-direction:column; gap:34px; align-items:center; padding:44px 20px 100px; }
+  .row{ display:flex; align-items:center; gap:24px; flex-wrap:wrap; justify-content:center;
+    background:linear-gradient(180deg,var(--surface),#070d1c); border:1px solid var(--line); border-radius:20px;
+    padding:22px 26px; max-width:760px; width:100%; }
+  .rowname{ flex:1 1 130px; min-width:130px; }
+  .rowname h2{ margin:0; font-size:22px; font-weight:800;
+    background:linear-gradient(180deg,#fff,var(--cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .rowname .t{ font-family:var(--mono); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--glow); margin-top:6px; }
+
+  .face{ text-align:center; }
+  .face img{ width:190px; height:auto; border-radius:12px; border:1px solid var(--line-hot);
+    box-shadow:0 20px 44px -22px rgba(0,0,0,.85); display:block; background:#fff; }
+  .face .lbl{ font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; margin-top:9px; }
+  .face.front .lbl{ color:var(--cyan); }
+  .face.back .lbl{ color:var(--muted); }
+  .face .sub{ font-size:11px; color:var(--faint); margin-top:2px; }
+</style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">Draft for review</p>
+  <h1>The 5 cards — front &amp; back</h1>
+  <p>Each existing card cut down the middle into a real <b>double-sided</b> card:
+     the <b>reactor</b> is the front (the side the camera scans), the <b>info</b> is the back. No new art needed.</p>
+</header>
+
+<div class="deck" id="deck"></div>
+
+<script>
+const TYPES = { "NSTXU-Diagram":"Spherical tokamak", "ITER-Card":"Large tokamak",
+  "HBTEP-Card":"Research tokamak", "FRC-Card":"Field-reversed configuration", "DFD-Rocket":"Fusion propulsion concept" };
+
+fetch('cards.json').then(r=>r.json()).then(d=>{
+  const deck = document.getElementById('deck');
+  d.cards.forEach(c=>{
+    const row = document.createElement('div'); row.className='row';
+    row.innerHTML = `
+      <div class="rowname"><h2>${c.displayName}</h2><div class="t">${(TYPES[c.id]||'Fusion concept').toUpperCase()}</div></div>
+      <div class="face front">
+        <img src="cards/split/${c.id}-front.png" alt="${c.displayName} front">
+        <div class="lbl">Front</div><div class="sub">reactor · scan this</div>
+      </div>
+      <div class="face back">
+        <img src="cards/split/${c.id}-back.png" alt="${c.displayName} back">
+        <div class="lbl">Back</div><div class="sub">info</div>
+      </div>`;
+    deck.appendChild(row);
+  });
+}).catch(()=>{ document.getElementById('deck').textContent='Could not load cards.json'; });
+</script>
+</body>
+</html>

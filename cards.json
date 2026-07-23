@@ -9,7 +9,9 @@
       "blurb": "A spherical tokamak - a cored-apple-shaped plasma that reaches high pressure with less magnetic field than a conventional tokamak.",
       "url": "https://www.pppl.gov/research/nstx-u",
       "image": "cards/NSTXU-Diagram.png",
-      "glb": "models/NSTXU-Diagram.glb"
+      "glb": "models/NSTXU-Diagram.glb",
+      "front": "cards/split/NSTXU-Diagram-front.png",
+      "back": "cards/split/NSTXU-Diagram-back.png"
     },
     {
       "id": "ITER-Card",
@@ -20,7 +22,9 @@
       "blurb": "The world's largest tokamak, under construction in southern France. Designed to produce 500 MW of fusion power from 50 MW of heating.",
       "url": "https://www.iter.org",
       "image": "cards/ITER-Card.png",
-      "glb": "models/ITER-Card.glb"
+      "glb": "models/ITER-Card.glb",
+      "front": "cards/split/ITER-Card-front.png",
+      "back": "cards/split/ITER-Card-back.png"
     },
     {
       "id": "HBTEP-Card",
@@ -31,7 +35,9 @@
       "blurb": "Columbia's research tokamak, used to study how to control plasma instabilities with feedback from magnetic sensors and active coils.",
       "url": "https://www.apam.columbia.edu",
       "image": "cards/HBTEP-Card.png",
-      "glb": "models/HBTEP-Card.glb"
+      "glb": "models/HBTEP-Card.glb",
+      "front": "cards/split/HBTEP-Card-front.png",
+      "back": "cards/split/HBTEP-Card-back.png"
     },
     {
       "id": "FRC-Card",
@@ -42,7 +48,9 @@
       "blurb": "A field-reversed configuration: the plasma generates much of its own confining field, promising small, simple fusion devices.",
       "url": "https://www.pppl.gov",
       "image": "cards/FRC-Card.png",
-      "glb": "models/FRC-Card.glb"
+      "glb": "models/FRC-Card.glb",
+      "front": "cards/split/FRC-Card-front.png",
+      "back": "cards/split/FRC-Card-back.png"
     },
     {
       "id": "DFD-Rocket",
@@ -53,7 +61,9 @@
       "blurb": "A fusion rocket engine concept based on the PFRC, designed to fly missions like a Pluto orbiter with power and thrust from one compact core.",
       "url": "https://www.psatellite.com",
       "image": "cards/DFD-Rocket.png",
-      "glb": "models/DFD-Rocket.glb"
+      "glb": "models/DFD-Rocket.glb",
+      "front": "cards/split/DFD-Rocket-front.png",
+      "back": "cards/split/DFD-Rocket-back.png"
     }
   ]
 }
