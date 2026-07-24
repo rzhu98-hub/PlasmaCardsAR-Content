@@ -266,7 +266,7 @@ fetch('cards.json').then(r=>r.json()).then(d=>{
       <div class="body"><h3>${c.displayName}</h3><div class="org">${c.fullName}<br>${c.org}</div>
       <p>${c.blurb}</p><p class="size">${c.realSize}</p>
       <div class="actions">
-        <a class="bt bt-acc" href="viewer.html?card=${c.id}">⚛ 3D model</a>
+        <a class="bt bt-acc" href="showcase.html?card=${c.id}">⚛ Explore in 3D</a>
         <a class="bt" href="${c.url}" target="_blank" rel="noopener">Learn more ↗</a>
       </div></div>`;
     g.appendChild(el);

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll Showcase · Plasma Cards AR</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+  :root{
+    --void:#04070f; --bg:#060b18; --text:#e8eefb; --muted:#9fb2d4; --faint:#5f7096;
+    --cyan:#38b6ff; --glow:#7ee0ff; --violet:#8b6cff; --magenta:#ff4d9d; --amber:#ffb84d;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color-scheme:dark;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--void); color:var(--text); font-family:var(--sans); }
+
+  #stage{ position:fixed; inset:0; z-index:0; transition:background 1.1s ease;
+    background:radial-gradient(1200px 800px at 50% 42%, rgba(56,182,255,.16), transparent 60%), var(--bg); }
+  model-viewer{ width:100%; height:100%; --poster-color:transparent; background:transparent; pointer-events:none; }
+  .blob{ position:fixed; z-index:0; border-radius:50%; filter:blur(70px); opacity:.5; pointer-events:none;
+    transition:background 1.1s ease; }
+  .b1{ width:46vw; height:46vw; left:-8vw; top:8vh; background:radial-gradient(circle,rgba(56,182,255,.5),transparent 70%); }
+  .b2{ width:40vw; height:40vw; right:-6vw; bottom:2vh; background:radial-gradient(circle,rgba(139,108,255,.45),transparent 70%); }
+
+  #scroll{ position:relative; z-index:2; }
+  section{ min-height:100vh; display:flex; align-items:center; padding:0 max(6vw,24px); }
+  section:nth-child(even){ justify-content:flex-end; }
+  .card{ max-width:460px; backdrop-filter:blur(3px);
+    background:linear-gradient(180deg, rgba(9,17,36,.72), rgba(6,11,24,.62));
+    border:1px solid rgba(56,182,255,.22); border-radius:20px; padding:30px 30px 28px;
+    box-shadow:0 40px 80px -40px rgba(0,0,0,.9);
+    opacity:0; transform:translateY(34px); transition:opacity .8s ease, transform .8s ease; }
+  .card.in{ opacity:1; transform:none; }
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.34em; text-transform:uppercase;
+    color:var(--glow); margin-bottom:12px; }
+  h1{ font-size:clamp(34px,6vw,60px); line-height:1.03; font-weight:800; letter-spacing:-.02em;
+    background:linear-gradient(180deg,#fff,var(--cyan)); -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; margin-bottom:14px; }
+  h2{ font-size:clamp(23px,3.4vw,34px); font-weight:800; letter-spacing:-.01em; margin-bottom:12px;
+    background:linear-gradient(180deg,#fff,var(--glow)); -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; }
+  p{ color:#d4def2; font-size:clamp(15px,1.5vw,18px); line-height:1.55; }
+  .stat{ font-family:var(--mono); font-size:13px; color:var(--amber); margin-top:14px; letter-spacing:.04em; }
+  .pill{ display:inline-block; margin-top:16px; font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--glow); padding:6px 12px; border-radius:999px;
+    background:rgba(56,182,255,.14); border:1px solid rgba(56,182,255,.34); text-decoration:none; }
+  .links{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+  .btn{ font-family:var(--sans); font-weight:700; font-size:14px; padding:11px 18px; border-radius:12px;
+    border:1px solid rgba(56,182,255,.34); color:var(--text); background:rgba(20,34,74,.5); text-decoration:none; }
+  .btn.acc{ background:linear-gradient(180deg,#5ec2ff,var(--cyan)); color:#04101f; border:none; }
+
+  #bar{ position:fixed; top:0; left:0; height:3px; width:0; z-index:5;
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--magenta)); transition:width .12s linear; }
+  #hint{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:5; font-family:var(--mono);
+    font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); transition:opacity .5s ease; }
+  #hint::after{ content:"↓"; display:block; text-align:center; margin-top:6px; font-size:16px;
+    animation:bob 1.6s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0); opacity:.5; } 50%{ transform:translateY(5px); opacity:1; } }
+  nav{ position:fixed; top:14px; left:18px; z-index:5; font-family:var(--mono); font-size:12px; }
+  nav a{ color:var(--glow); text-decoration:none; opacity:.85; }
+  /* reactor switcher, top-right */
+  #switch{ position:fixed; top:12px; right:14px; z-index:6; display:flex; gap:6px; flex-wrap:wrap;
+    justify-content:flex-end; max-width:60vw; }
+  #switch a{ font-family:var(--mono); font-size:11px; letter-spacing:.04em; text-decoration:none; color:var(--muted);
+    padding:6px 10px; border-radius:999px; border:1px solid var(--line,#1c2c52); background:rgba(9,17,36,.6); }
+  #switch a.on{ color:#04101f; background:var(--cyan); border-color:transparent; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div id="bar"></div>
+<nav><a href="index.html">← all reactors</a></nav>
+<div id="switch"></div>
+
+<div id="stage">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <model-viewer id="mv"
+    camera-orbit="0deg 80deg 185%"
+    min-camera-orbit="auto auto 55%" max-camera-orbit="auto auto 340%"
+    interpolation-decay="120" field-of-view="30deg"
+    disable-zoom disable-tap exposure="1.0" shadow-intensity="0.4" loading="eager"></model-viewer>
+</div>
+
+<div id="hint">scroll</div>
+<div id="scroll"></div>
+
+<script>
+const mv = document.getElementById('mv');
+const stage = document.getElementById('stage');
+const bar = document.getElementById('bar');
+const hint = document.getElementById('hint');
+const scroll = document.getElementById('scroll');
+const params = new URLSearchParams(location.search);
+
+// Camera goals per beat: [theta°, phi°, radius%] + atmosphere color.
+const KF = [
+  { t:0,    p:80, r:185, c:[56,182,255]  },
+  { t:-70,  p:72, r:135, c:[86,150,255]  },
+  { t:-150, p:28, r:120, c:[139,108,255] },
+  { t:-240, p:68, r:96,  c:[255,120,140] },
+  { t:-320, p:86, r:170, c:[255,77,157]  },
+];
+
+// Build the scroll beats for one reactor from its cards.json record.
+function beats(c){
+  const out = [
+    { eyebrow:"Plasma Physics Trading Cards", h:"h1", title:c.displayName,
+      body:c.fullName || "", pill:"Scroll to explore" },
+    { eyebrow:"The Machine", h:"h2", title:"What it is",
+      body:c.blurb || "", stat:c.org ? c.org.toUpperCase() : "" },
+  ];
+  if (c.realSize)
+    out.push({ eyebrow:"Scale", h:"h2", title:"Real-world size",
+      body:"Every card is a real fusion machine from a working laboratory — this is how big it actually is.",
+      stat:c.realSize.toUpperCase() });
+  out.push({ eyebrow:"Explore", h:"h2", title:"See it from every angle",
+    body:"Spin it freely, or scan the printed card in the app to place it in the room.",
+    links:[ {t:"Free 3D viewer ↗", href:"viewer.html?card="+c.id, acc:true} ]
+      .concat(c.url ? [{t:"Learn more ↗", href:c.url}] : []) });
+  return out;
+}
+
+function render(c, all){
+  document.title = c.displayName + " · Plasma Cards AR";
+  mv.src = c.glb + "?v=4";                       // ?v bumped to defeat browser cache
+  // reactor switcher
+  const sw = document.getElementById('switch');
+  sw.innerHTML = all.map(x => `<a href="showcase.html?card=${x.id}"${x.id===c.id?' class="on"':''}>${x.displayName}</a>`).join('');
+  // beats
+  scroll.innerHTML = beats(c).map(b => {
+    const stat = b.stat ? `<div class="stat">${b.stat}</div>` : "";
+    const pill = b.pill ? `<span class="pill">${b.pill}</span>` : "";
+    const links = b.links ? `<div class="links">${b.links.map(l=>`<a class="btn${l.acc?' acc':''}" href="${l.href}"${/^https?:/.test(l.href)?' target="_blank" rel="noopener"':''}>${l.t}</a>`).join('')}</div>` : "";
+    return `<section><div class="card">
+      <div class="eyebrow">${b.eyebrow}</div>
+      <${b.h}>${b.title}</${b.h}>
+      ${b.body?`<p>${b.body}</p>`:""}${stat}${pill}${links}
+    </div></section>`;
+  }).join('');
+  observeCards();
+  onScroll();
+}
+
+const lerp = (a,b,t)=> a+(b-a)*t;
+const mix = (c0,c1,t)=> c0.map((v,i)=> Math.round(lerp(v,c1[i],t)));
+let ticking=false;
+function onScroll(){
+  if (ticking) return; ticking=true;
+  requestAnimationFrame(()=>{
+    const max = document.body.scrollHeight - window.innerHeight;
+    const prog = max>0 ? Math.min(1,Math.max(0,window.scrollY/max)) : 0;
+    bar.style.width = (prog*100)+'%';
+    if (window.scrollY>40) hint.style.opacity='0';
+    const span=(KF.length-1)*prog, i=Math.min(KF.length-2,Math.floor(span)), f=span-i;
+    const a=KF[i], b=KF[i+1];
+    mv.cameraOrbit = `${lerp(a.t,b.t,f)}deg ${lerp(a.p,b.p,f)}deg ${lerp(a.r,b.r,f)}%`;
+    const col=mix(a.c,b.c,f);
+    stage.style.background=`radial-gradient(1200px 800px at 50% 42%, rgba(${col[0]},${col[1]},${col[2]},.18), transparent 60%), var(--bg)`;
+    ticking=false;
+  });
+}
+let io;
+function observeCards(){
+  if (io) io.disconnect();
+  io = new IntersectionObserver(es=> es.forEach(e=> e.isIntersecting && e.target.classList.add('in')), {threshold:0.35});
+  document.querySelectorAll('.card').forEach(c=> io.observe(c));
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('resize', onScroll);
+mv.addEventListener('load', onScroll);
+
+fetch('cards.json').then(r=>r.json()).then(d=>{
+  const all = d.cards.filter(c=>c.glb);
+  const want = params.get('card');
+  const c = all.find(x=>x.id===want) || all[0];
+  render(c, all);
+});
+</script>
+</body>
+</html>

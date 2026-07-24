@@ -56,7 +56,7 @@ let cards = [], idx = 0;
 function show(i) {
   idx = (i + cards.length) % cards.length;
   const c = cards[idx];
-  document.getElementById("mv").src = c.glb;
+  document.getElementById("mv").src = c.glb + "?v=4";  // ?v defeats browser cache of updated models
   document.getElementById("name").textContent = c.displayName;
   document.getElementById("org").textContent = c.fullName + " — " + c.org;
   document.getElementById("blurb").textContent = c.blurb;
