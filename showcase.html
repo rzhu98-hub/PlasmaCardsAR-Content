@@ -113,6 +113,11 @@ function beats(c){
     { eyebrow:"The Machine", h:"h2", title:"What it is",
       body:c.blurb || "", stat:c.org ? c.org.toUpperCase() : "" },
   ];
+  const nums = [['Magnetic field',c.magneticField],['Plasma temperature',c.temperature],
+    ['Fusion power',c.fusionPower],['Plasma current',c.plasmaCurrent]].filter(x=>x[1]);
+  if (nums.length)
+    out.push({ eyebrow:"By the Numbers", h:"h2", title:"The physics, measured",
+      body:"", statList: nums.map(x=>`${x[0]} — ${x[1]}`) });
   if (c.realSize)
     out.push({ eyebrow:"Scale", h:"h2", title:"Real-world size",
       body:"Every card is a real fusion machine from a working laboratory — this is how big it actually is.",
@@ -133,12 +138,13 @@ function render(c, all){
   // beats
   scroll.innerHTML = beats(c).map(b => {
     const stat = b.stat ? `<div class="stat">${b.stat}</div>` : "";
+    const statList = b.statList ? b.statList.map(s=>`<div class="stat">${s}</div>`).join('') : "";
     const pill = b.pill ? `<span class="pill">${b.pill}</span>` : "";
     const links = b.links ? `<div class="links">${b.links.map(l=>`<a class="btn${l.acc?' acc':''}" href="${l.href}"${/^https?:/.test(l.href)?' target="_blank" rel="noopener"':''}>${l.t}</a>`).join('')}</div>` : "";
     return `<section><div class="card">
       <div class="eyebrow">${b.eyebrow}</div>
       <${b.h}>${b.title}</${b.h}>
-      ${b.body?`<p>${b.body}</p>`:""}${stat}${pill}${links}
+      ${b.body?`<p>${b.body}</p>`:""}${stat}${statList}${pill}${links}
     </div></section>`;
   }).join('');
   observeCards();
@@ -173,7 +179,7 @@ window.addEventListener('scroll', onScroll, {passive:true});
 window.addEventListener('resize', onScroll);
 mv.addEventListener('load', onScroll);
 
-fetch('cards.json').then(r=>r.json()).then(d=>{
+fetch('cards.json?t='+Date.now()).then(r=>r.json()).then(d=>{   // always fresh: card data updates often
   const all = d.cards.filter(c=>c.glb);
   const want = params.get('card');
   const c = all.find(x=>x.id===want) || all[0];

@@ -101,6 +101,10 @@
   .cface.back .full{ font-weight:700; font-size:9pt; line-height:1.15; }
   .cface.back .org{ color:var(--muted); font-size:7pt; }
   .cface.back .scale{ color:var(--amber); font-family:var(--mono); font-size:6.5pt; }
+  .cface.back .stats{ display:flex; flex-wrap:wrap; gap:3px 5px; margin-top:5px; }
+  .cface.back .stats span{ font-family:var(--mono); font-size:5.5pt; color:var(--glow);
+    background:rgba(56,182,255,.12); border:1px solid rgba(56,182,255,.3); border-radius:5px; padding:2px 5px; }
+  .cface.back .stats b{ color:var(--muted); font-weight:600; }
   .cface.back .blurb{ font-size:8pt; color:#d4def2; line-height:1.3; margin-top:2px; }
   .cface.back .foot{ margin-top:auto; display:flex; justify-content:space-between; font-family:var(--mono);
     font-size:5.5pt; color:var(--faint); padding-top:6px; border-top:1px solid var(--line); }
@@ -149,6 +153,16 @@
     <div class="field"><label>Full name</label><input id="fullName" placeholder="National Spherical Torus Experiment – Upgrade"></div>
     <div class="field"><label>Organization</label><input id="org" placeholder="Princeton Plasma Physics Laboratory"></div>
     <div class="field"><label>Scale / size</label><input id="realSize" placeholder="plasma major radius 0.93 m"></div>
+
+    <div class="row">
+      <div class="field"><label>Magnetic field</label><input id="magneticField" placeholder="5.3 T"></div>
+      <div class="field"><label>Plasma temperature</label><input id="temperature" placeholder="150 million °C"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Fusion power</label><input id="fusionPower" placeholder="500 MW"></div>
+      <div class="field"><label>Plasma current</label><input id="plasmaCurrent" placeholder="15 MA"></div>
+    </div>
+
     <div class="field"><label>One sentence</label><textarea id="blurb" placeholder="A compact spherical tokamak that reaches high pressure with less magnetic field."></textarea></div>
     <div class="field"><label>Learn-more link (optional)</label><input id="url" placeholder="https://…"></div>
 
@@ -173,6 +187,7 @@
           <div class="full" id="p_full">Full machine name</div>
           <div class="org" id="p_org">Institution</div>
           <div class="scale" id="p_scale">scale / size</div>
+          <div class="stats" id="p_stats"></div>
           <div class="blurb" id="p_blurb">One sentence about what it is and why it matters.</div>
           <div class="foot"><span>PLASMA PHYSICS TRADING CARDS</span><span id="p_url">scan me</span></div>
         </div>
@@ -185,6 +200,8 @@
 <script>
 const $ = id => document.getElementById(id);
 const fields = ['displayName','type','fullName','org','realSize','blurb','url'];
+const params = ['magneticField','temperature','fusionPower','plasmaCurrent'];
+const paramLabels = { magneticField:'Field', temperature:'Temp', fusionPower:'Power', plasmaCurrent:'Current' };
 const map = { displayName:['p_name','Your Reactor'], type:['p_type','REACTOR TYPE'], fullName:['p_full','Full machine name'],
   org:['p_org','Institution'], realSize:['p_scale','scale / size'], blurb:['p_blurb','One sentence about what it is and why it matters.'],
   url:['p_url','scan me'] };
@@ -197,8 +214,13 @@ function render(){
     else if(f==='url') $('p_url').textContent = v ? v.replace(/^https?:\/\//,'').slice(0,26) : 'scan me';
     else $(target).textContent = v || ph;
   }
+  // key-number chips: only render the fields that are actually filled in
+  $('p_stats').innerHTML = params.map(f=>{
+    const v = $(f).value.trim();
+    return v ? `<span><b>${paramLabels[f]}</b> ${v}</span>` : '';
+  }).join('');
 }
-fields.forEach(f => $(f).addEventListener('input', render));
+[...fields, ...params].forEach(f => $(f).addEventListener('input', render));
 
 // image upload -> head background
 $('img').addEventListener('change', e => {
@@ -209,7 +231,7 @@ $('img').addEventListener('change', e => {
 });
 
 // populate "start from" with existing reactors
-fetch('cards.json').then(r=>r.json()).then(d=>{
+fetch('cards.json?t='+Date.now()).then(r=>r.json()).then(d=>{   // always fresh: card data updates often
   const sel = $('startFrom');
   d.cards.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.displayName; sel.appendChild(o); });
   sel._data = {}; d.cards.forEach(c=> sel._data[c.id]=c);
@@ -220,6 +242,7 @@ $('startFrom').addEventListener('change', e=>{
   if(!c){ return; }
   $('displayName').value = c.displayName||''; $('fullName').value = c.fullName||'';
   $('org').value = c.org||''; $('realSize').value = c.realSize||''; $('blurb').value = c.blurb||''; $('url').value = c.url||'';
+  params.forEach(f=> $(f).value = c[f]||'');
   $('type').value = ''; // type isn't in cards.json; leave for the user
   const fr = c.front || ('cards/split/' + c.id + '-front.png');
   $('frontimg').style.backgroundImage = `url(${fr})`; $('noimg').style.display='none';
@@ -227,7 +250,7 @@ $('startFrom').addEventListener('change', e=>{
 });
 
 $('reset').addEventListener('click', ()=>{
-  fields.forEach(f=> $(f).value=''); $('startFrom').value='';
+  [...fields, ...params].forEach(f=> $(f).value=''); $('startFrom').value='';
   $('frontimg').style.backgroundImage=''; $('noimg').style.display=''; render();
 });
 
