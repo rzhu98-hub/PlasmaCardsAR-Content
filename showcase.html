@@ -82,7 +82,9 @@
     camera-orbit="0deg 80deg 185%"
     min-camera-orbit="auto auto 55%" max-camera-orbit="auto auto 340%"
     interpolation-decay="120" field-of-view="30deg"
-    disable-zoom disable-tap exposure="1.0" shadow-intensity="0.4" loading="eager"></model-viewer>
+    disable-zoom disable-tap loading="eager"
+    environment-image="env/studio-silver.hdr" tone-mapping="neutral"
+    exposure="0.78" shadow-intensity="0.55" shadow-softness="0.9"></model-viewer>
 </div>
 
 <div id="hint">scroll</div>
@@ -131,7 +133,7 @@ function beats(c){
 
 function render(c, all){
   document.title = c.displayName + " · Plasma Cards AR";
-  mv.src = c.glb + "?v=4";                       // ?v bumped to defeat browser cache
+  mv.src = c.glb + "?v=5";                       // ?v bumped to defeat browser cache
   // reactor switcher
   const sw = document.getElementById('switch');
   sw.innerHTML = all.map(x => `<a href="showcase.html?card=${x.id}"${x.id===c.id?' class="on"':''}>${x.displayName}</a>`).join('');
